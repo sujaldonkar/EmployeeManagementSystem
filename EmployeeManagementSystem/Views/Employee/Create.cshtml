@@ -1,0 +1,185 @@
+﻿@model EmployeeManagementSystem.ViewModels.EmployeeFormViewModel
+
+@{
+    ViewData["Title"] = "Add Employee";
+}
+
+<h2>Add New Employee</h2>
+
+<hr />
+
+<form asp-action="Create" method="post">
+
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="row">
+
+        <div class="col-md-6 mb-3">
+            <label asp-for="Employee.FirstName" class="form-label">First Name</label>
+            <input asp-for="Employee.FirstName" class="form-control" />
+            <span asp-validation-for="Employee.FirstName" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label asp-for="Employee.LastName" class="form-label">Last Name</label>
+            <input asp-for="Employee.LastName" class="form-control" />
+            <span asp-validation-for="Employee.LastName" class="text-danger"></span>
+        </div>
+
+        
+        <div class="col-md-6 mb-3">
+            <label asp-for="Employee.DateOfBirth" class="form-label">
+                Date of Birth
+            </label>
+
+            <input asp-for="Employee.DateOfBirth"
+                   type="date"
+                   class="form-control"
+                   max="@DateTime.Today.ToString("yyyy-MM-dd")" />
+
+            <span asp-validation-for="Employee.DateOfBirth"
+                  class="text-danger"></span>
+        </div>
+
+
+        <div class="col-md-6 mb-3">
+            <label asp-for="Employee.CountryId" class="form-label">Country</label>
+
+            <select asp-for="Employee.CountryId"
+                    class="form-select"
+                    id="CountryId">
+
+                <option value="">-- Select Country --</option>
+
+                @foreach (var country in Model.Countries)
+                {
+                    <option value="@country.Id"
+                            data-code="@country.Code">
+                        @country.Name
+                    </option>
+                }
+            </select>
+
+            <span asp-validation-for="Employee.CountryId"
+                  class="text-danger"></span>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label asp-for="Employee.StateId" class="form-label">State</label>
+
+            <select asp-for="Employee.StateId"
+                    class="form-select"
+                    id="StateId">
+
+                <option value="">-- Select State --</option>
+
+                @foreach (var state in Model.States)
+                {
+                    <option value="@state.Id"
+                            data-code="@state.Code">
+                        @state.Name
+                    </option>
+                }
+            </select>
+
+            <span asp-validation-for="Employee.StateId"
+                  class="text-danger"></span>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label asp-for="Employee.CityId" class="form-label">City</label>
+            <select asp-for="Employee.CityId" asp-items="Model.Cities" class="form-select" id="CityId">
+                <option value="">-- Select City --</option>
+            </select>
+            <span asp-validation-for="Employee.CityId" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label asp-for="Employee.QualificationId" class="form-label">Qualification</label>
+            <select asp-for="Employee.QualificationId" asp-items="Model.Qualifications" class="form-select">
+                <option value="">-- Select Qualification --</option>
+            </select>
+            <span asp-validation-for="Employee.QualificationId" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label asp-for="Employee.EmailAddress" class="form-label">Email Address</label>
+            <input asp-for="Employee.EmailAddress" class="form-control" />
+            <span asp-validation-for="Employee.EmailAddress" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label asp-for="Employee.PhoneNo" class="form-label">Phone Number</label>
+            <input asp-for="Employee.PhoneNo" class="form-control" />
+            <span asp-validation-for="Employee.PhoneNo" class="text-danger"></span>
+        </div>
+
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save Employee</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        $(document).ready(function () {
+
+            // Country change
+            $("#CountryId").change(function () {
+
+                var countryId = $(this).val();
+
+                $("#StateId").empty()
+                    .append('<option value="">-- Select State --</option>');
+
+                $("#CityId").empty()
+                    .append('<option value="">-- Select City --</option>');
+
+                if (countryId) {
+                    $.getJSON('/Employee/GetStates',
+                        { countryId: countryId },
+                        function (data) {
+
+                            $.each(data, function (index, item) {
+                                $("#StateId").append(
+                                    $('<option></option>')
+                                        .val(item.id)
+                                        .attr('data-code', item.code)
+                                        .text(item.name)
+                                );
+                            });
+                        });
+                }
+            });
+
+            // State change
+            $("#StateId").change(function () {
+
+                var stateId = $(this).val();
+
+                $("#CityId").empty()
+                    .append('<option value="">-- Select City --</option>');
+
+                if (stateId) {
+                    $.getJSON('/Employee/GetCities',
+                        { stateId: stateId },
+                        function (data) {
+
+                            $.each(data, function (index, item) {
+                                $("#CityId").append(
+                                    $('<option></option>')
+                                        .val(item.value)
+                                        .text(item.text)
+                                );
+                            });
+                        });
+                }
+            });
+
+        });
+    </script>
+}
+
